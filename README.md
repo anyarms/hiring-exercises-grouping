@@ -1,40 +1,29 @@
-# Programming Exercise - Grouping
+Originally cloned from [jhubert/hiring-exercises](https://github.com/jhubert/hiring-exercises/tree/master/grouping).
 
-The goal of this exercise is to identify rows in a CSV file that
-__may__ represent the __same person__ based on a provided __Matching Type__ (definition below).
+I'm approaching this exercise with the idea that you'd like to see
+- Code I've actually written
+- Something I haven't take a ton of time to polish
+- How I approach problems and take a stab at solving them
 
-The resulting program should allow us to test at least three matching types:
- - one that matches records with the same email address
- - one that matches records with the same phone number
- - one that matches records with the same email address OR the same phone number
+I'm currently working in Windows. If you have any trouble with compatibility, let me know. Windows isn't my typical jam.
+Also, the line endings in `input1.csv` seem different than the others, which is to say, they didn't show up for me when I cloned the repository. I just added in line endings manually to that file, since that didn't seem within the scope of the stated problem.
 
-## Guidelines
+### Dependencies
+- Ruby (Written with v2.3.5)
 
-* **Please DO NOT fork this repository with your solution**
-* Use any language you want, as long as it can be compiled on OSX
-* Only use code that you have license to use
-* Don't hesitate to ask us any questions to clarify the project
+## Running the solution
+`ruby group_file.rb {matching_type} {filename}`
 
-## Resources
+## Inputs
 
-### CSV Files
+| Input | Type | Description |
+|---|---|---|
+| matching_type | string | Must be one of `email`, `phone`, `both`|
+| filename | string | Must be of type `.csv`, must be located in the same directory as `group_file.rb`|
 
-Three sample input files are included. All files should be successfully
-processed by the resulting code.
-
-### Matching Type
-
-A matching type is a declaration of what logic should be used to compare the rows.
-
-For example: A matching type named same_email might make use of an algorithm that 
-matches rows based on email columns.
-
-## Interface
-
-At a high level, the program should take two parameters. The input file
-and the matching type.
-
-## Output
-
-The expected output is a copy of the original CSV file with the unique 
-identifier of the person each row represents prepended to the row.
+## Room for improvement
+Some things I'd like to improve, given the time:
+- Accommodate other line ending types (see my note about `input1.csv` above)
+- Make the `matching_type` input friendlier (i.e. not rely on string matching)
+- Allow for more flexible locations for `filename` (e.g. ability to specify full path)
+- Be more suspicious about the safety of user input
