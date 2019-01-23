@@ -21,59 +21,52 @@ class UserFile
     end
   end
 
+  def beautify(matching_value)
+    return nil if matching_value.nil?
+    matching_value = matching_value.downcase.strip
+    if !matching_value.include? '@' # no @? assume it's a phone number
+      matching_value = matching_value.tr('^0123456789', '')[-10,9]
+    end
+    matching_value
+  end
+
   def process_rows
     output_array = []
     next_user_id = 0
+    matching_columns = []
 
     file_content = File.open(filename).read
-    file_content.each_line do |line|
-      line.strip! # remove extra whitespace, parse csv
-      if line.split(',')[0] == "FirstName" # for the header row, just add the new column
-        output_array.push("UserId,#{line}")
+    file_content.each_line do |unparsed_line|
+      line = unparsed_line.strip.split(',') # remove extra whitespace, parse csv
+      if line[0] == "FirstName" # header row
+        # figure out which columns are relevant to our matching
+        if %w(email both).include? matching_type
+          matching_columns += line.each_index
+                                  .select{|i| line[i].include? "Email"}
+        end
+        if %w(phone both).include? matching_type
+          matching_columns += line.each_index
+                                  .select{|i| line[i].include? "Phone"}
+        end
+        output_array.push("UserId,#{unparsed_line}") # for the header row, just add the new column
         next
       end
 
-      email = line.split(',')[3]
-      email = email.strip.downcase unless email.nil?
-      phone = line.split(',')[2]
-      phone = phone.tr('^0123456789', '')[-10,9] unless phone.nil?
+      # From interesting matching_columns, assemble interesting values
+      matching_values = matching_columns.map { |i| beautify(line[i]) }
+      user_matches = matching_values.map { |v| lookup_user_id(v) }
+                                    .reject(&:nil?)
+                                    .uniq
 
-      if matching_type == "email"
-        user_id = lookup_user_id(email)
-        if user_id.nil?
-          user_id = next_user_id
-          users[email] = next_user_id unless email.nil?
-          next_user_id += 1
-        end
-      elsif matching_type == "phone"
-        user_id = lookup_user_id(phone)
-        if user_id.nil?
-          user_id = next_user_id
-          users[phone] = next_user_id unless phone.nil?
-          next_user_id += 1
-        end
-      elsif matching_type == "both"
-        phone_user_id = lookup_user_id(phone)
-        email_user_id = lookup_user_id(email)
-        if phone_user_id && email_user_id
-          raise NotImplementedError, "Double Match! Oh No!"
-        elsif phone_user_id
-          user_id = phone_user_id
-          users[email] = user_id unless email.nil?
-        elsif email_user_id
-          user_id = email_user_id
-          users[phone] = user_id unless phone.nil?
-        else # phone_user_id.nil? && email_user_id.nil?
-          user_id = next_user_id
-          users[phone] = next_user_id unless phone.nil?
-          users[email] = next_user_id unless email.nil?
-          next_user_id += 1
-        end
-
-      else # shouldn't reach this
-        raise NotImplementedError, "Specified matching type has not been implemented."
+      raise NotImplementedError, "Multiple Match!" if user_matches.length > 1
+      if user_matches.length == 1  # unambiguous user match
+        user_id = user_matches[0]
+      else                         # unknown user
+        user_id = next_user_id
+        next_user_id += 1
       end
-      output_array.push("#{user_id}," + line) # prepend the user_id to the line
+      matching_values.each { |v| users[v] = user_id unless v.nil? }
+      output_array.push("#{user_id}," + unparsed_line) # prepend the user_id to the line
     end
     output_array
   end
