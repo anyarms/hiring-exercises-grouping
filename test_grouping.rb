@@ -19,10 +19,9 @@ class TestUserFile < Minitest::Test
     assert_equal %w(UserId 0 1 2 3 4 5 1 6), output.map { |e| e.split(',')[0] }
   end
   def test_phone_grouping
-    skip "not yet implemented"
     userfile = UserFile.new("phone", "input1.csv")
     output = userfile.process_rows
-    assert_equal %w(UserId 0 1 2 3 4 2 5 6), output.map { |e| e.split(',')[0] }
+    assert_equal %w(UserId 0 0 1 2 3 1 4 5), output.map { |e| e.split(',')[0] }
   end
   def test_both_grouping
     skip "not yet implemented"

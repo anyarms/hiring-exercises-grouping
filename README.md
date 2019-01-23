@@ -8,6 +8,7 @@ I'm approaching this exercise with the idea that you'd like to see
 ### Decisions Made
 - The guidelines didn't say anything about grouping on nil values (i.e. many entries have no email address: are these all the same person?). I decided to consider these different people, since that made more business sense to me.
 - The output file will overwrite any previous output file of the same name without warning. Output files name themselves after your input file name and your matching type (plus 'output'): `input1_email_output.csv`.
+- I'm assuming that phone numbers, if they're not nil, will have at least ten digits, and I'm only matching on the trailing ten.
 
 I'm currently working in Windows. If you have any trouble with compatibility, let me know. Windows isn't my typical jam.
 Also, the line endings in `input1.csv` seem different than the others, which is to say, they didn't show up for me when I cloned the repository. I just added in line endings manually to that file, since that didn't seem within the scope of the stated problem.
@@ -36,6 +37,7 @@ I wrote a couple of tests to make the process easier, you can run them with `rub
 
 ## Room for improvement
 Some things I'd like to improve, given the time:
+- A cooler implementation could use `send` to dynamically parse the matching_type, allowing for much more flexibility.
 - Make the `matching_type` input friendlier (i.e. not rely on string matching)
 - Allow for more flexible locations for `filename` (e.g. ability to specify full path)
 - Be more suspicious about the safety of user input
