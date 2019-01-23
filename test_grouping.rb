@@ -13,20 +13,34 @@ class TestUserFile < Minitest::Test
     assert_equal "email", userfile.matching_type
     assert_equal "input1.csv", userfile.filename
   end
-  def test_email_grouping
+  def test_email_grouping_single_column
     userfile = UserFile.new("email", "input1.csv")
     output = userfile.process_rows
     assert_equal %w(UserId 0 1 2 3 4 5 1 6), output.map { |e| e.split(',')[0] }
   end
-  def test_phone_grouping
+  def test_email_grouping_double_column
+    userfile = UserFile.new("email", "input2.csv")
+    output = userfile.process_rows
+    assert_equal %w(UserId 0 1 2 3 4 5 1 6), output.map { |e| e.split(',')[0] }
+  end
+  def test_phone_grouping_single_column
     userfile = UserFile.new("phone", "input1.csv")
     output = userfile.process_rows
     assert_equal %w(UserId 0 0 1 2 3 1 4 5), output.map { |e| e.split(',')[0] }
   end
-  def test_both_grouping
-    skip "not yet implemented"
+  def test_phone_grouping_double_column
+    userfile = UserFile.new("phone", "input2.csv")
+    output = userfile.process_rows
+    assert_equal %w(UserId 0 0 1 2 3 1 4 5), output.map { |e| e.split(',')[0] }
+  end
+  def test_both_grouping_single_column
     userfile = UserFile.new("both", "input1.csv")
     output = userfile.process_rows
-    assert_equal %w(UserId 0 1 2 3 4 2 1 5), output.map { |e| e.split(',')[0] }
+    assert_equal %w(UserId 0 0 1 2 3 1 0 4), output.map { |e| e.split(',')[0] }
+  end
+  def test_both_grouping_with_double_match
+    userfile = UserFile.new("both", "input2.csv")
+    output = userfile.process_rows
+    assert_equal %w(UserId 0 0 1 2 3 1 0 4), output.map { |e| e.split(',')[0] }
   end
 end

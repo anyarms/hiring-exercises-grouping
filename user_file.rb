@@ -13,6 +13,14 @@ class UserFile
     @users = {}
   end
 
+  def lookup_user_id(matching_value)
+    if users.key?(matching_value)  # if the person is known
+      return users[matching_value] # specify the existing user_id
+    else # an unknown person
+      return nil
+    end
+  end
+
   def process_rows
     output_array = []
     next_user_id = 0
@@ -25,25 +33,45 @@ class UserFile
         next
       end
 
-      if matching_type == "email"
-        matching_value = line.split(',')[3]
-        matching_value = matching_value.strip.downcase unless matching_value.nil?
-      elsif matching_type == "phone"
-        matching_value = line.split(',')[2]
-        matching_value = matching_value.tr('^0123456789', '')[-10,9] unless matching_value.nil?
-      else # matching_type == 'both'
-        raise NotImplementedError, 'Specified matching type is still in progress'
-      end
+      email = line.split(',')[3]
+      email = email.strip.downcase unless email.nil?
+      phone = line.split(',')[2]
+      phone = phone.tr('^0123456789', '')[-10,9] unless phone.nil?
 
-      # This conditional could use fewer lines, but I find this more readable
-      if matching_value.nil? # assume each nil is a different person
-        user_id = next_user_id
-        next_user_id += 1
-      elsif users.key?(matching_value)  # if the person is known
-        user_id = users[matching_value] # specify the existing user_id
-      else # an unknown person with a non-nil email!
-        user_id = users[matching_value] = next_user_id
-        next_user_id += 1
+      if matching_type == "email"
+        user_id = lookup_user_id(email)
+        if user_id.nil?
+          user_id = next_user_id
+          users[email] = next_user_id unless email.nil?
+          next_user_id += 1
+        end
+      elsif matching_type == "phone"
+        user_id = lookup_user_id(phone)
+        if user_id.nil?
+          user_id = next_user_id
+          users[phone] = next_user_id unless phone.nil?
+          next_user_id += 1
+        end
+      elsif matching_type == "both"
+        phone_user_id = lookup_user_id(phone)
+        email_user_id = lookup_user_id(email)
+        if phone_user_id && email_user_id
+          raise NotImplementedError, "Double Match! Oh No!"
+        elsif phone_user_id
+          user_id = phone_user_id
+          users[email] = user_id unless email.nil?
+        elsif email_user_id
+          user_id = email_user_id
+          users[phone] = user_id unless phone.nil?
+        else # phone_user_id.nil? && email_user_id.nil?
+          user_id = next_user_id
+          users[phone] = next_user_id unless phone.nil?
+          users[email] = next_user_id unless email.nil?
+          next_user_id += 1
+        end
+
+      else # shouldn't reach this
+        raise NotImplementedError, "Specified matching type has not been implemented."
       end
       output_array.push("#{user_id}," + line) # prepend the user_id to the line
     end
