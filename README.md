@@ -51,5 +51,6 @@ I'm just processing the file line by line, but a more sophisticated solution mig
 #### Some smaller things
 - A cooler implementation could use `send` to dynamically parse the matching_type, allowing for much more flexibility.
 - Make the `matching_type` input friendlier (i.e. not rely on string matching)
+- If I'm doing more complicated things with user input, I'd need to be more suspicious about the safety of user input
 - Allow for more flexible locations for `filename` (e.g. ability to specify full path)
-- Be more suspicious about the safety of user input
+- This solution just keeps everything in memory, which is obviously not suitable for very large files.
