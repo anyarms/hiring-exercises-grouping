@@ -74,7 +74,7 @@ class UserFile
   def write_output_to_file
     output_filename ="#{filename.split('.')[0]}_#{matching_type}_output.csv"
     IO.write(output_filename, '') # since I'm overwriting files, let's clear them out
-    IO.write(output_filename, process_rows.join('\n'))
+    IO.write(output_filename, process_rows.join('')) # this works on my windows machine, but might need .join('\n') for other EOL formats
     output_filename
   end
 
