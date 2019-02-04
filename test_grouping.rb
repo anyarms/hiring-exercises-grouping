@@ -43,4 +43,8 @@ class TestUserFile < Minitest::Test
     output = userfile.process_rows
     assert_equal %w(UserId 0 0 0 0 0 1), output.map { |e| e.split(',')[0] }
   end
+  def test_both_grouping_with_ambiguous_match
+    userfile = UserFile.new("both", "bad_input.csv")
+    assert_raises(NotImplementedError) { userfile.process_rows }
+  end
 end
